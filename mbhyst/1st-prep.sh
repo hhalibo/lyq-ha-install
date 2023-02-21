@@ -8,7 +8,7 @@ echo
 apt update;
 apt upgrade -y;
 apt install mosquitto-clients avahi-daemon -y;
-curl -L https://ghproxy.com/https://github.com/docker/compose/releases/download/v2.11.2/docker-compose-linux-aarch64 -o /usr/local/bin/docker-compose;
+curl -L https://ghproxy.com/https://github.com/docker/compose/releases/download/v2.16.0/docker-compose-linux-aarch64 -o /usr/local/bin/docker-compose;
 chmod +x /usr/local/bin/docker-compose;
 curl -fsSL get.docker.com | sh;
 
