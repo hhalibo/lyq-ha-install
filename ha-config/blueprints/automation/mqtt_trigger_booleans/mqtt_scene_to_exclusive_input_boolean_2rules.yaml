@@ -1,0 +1,84 @@
+blueprint:
+  name: MQTT 场景按键 -> 互斥 input_boolean（2规则）
+  description: >
+    当收到指定 MQTT topic 和 payload 时，先关闭一组场景 input_boolean，
+    再打开目标 input_boolean，实现互斥场景选择。
+    本版本支持 2 条 MQTT 规则。
+  domain: automation
+  input:
+    scene_group:
+      name: 需要互斥的 input_boolean 组
+      description: >
+        这里选择所有需要互斥的场景布尔量。
+        每次触发时会先全部关闭，再打开当前匹配的那个。
+      selector:
+        entity:
+          domain: input_boolean
+          multiple: true
+
+    rule_1_topic:
+      name: 规则1 - MQTT Topic
+      selector:
+        text:
+    rule_1_payload:
+      name: 规则1 - Payload
+      selector:
+        text:
+    rule_1_target:
+      name: 规则1 - 要打开的 input_boolean
+      selector:
+        entity:
+          domain: input_boolean
+
+    rule_2_topic:
+      name: 规则2 - MQTT Topic
+      selector:
+        text:
+    rule_2_payload:
+      name: 规则2 - Payload
+      selector:
+        text:
+    rule_2_target:
+      name: 规则2 - 要打开的 input_boolean
+      selector:
+        entity:
+          domain: input_boolean
+
+mode: restart
+
+trigger:
+  - platform: mqtt
+    topic: !input rule_1_topic
+    payload: !input rule_1_payload
+    id: rule_1
+
+  - platform: mqtt
+    topic: !input rule_2_topic
+    payload: !input rule_2_payload
+    id: rule_2
+
+condition: []
+
+action:
+  - choose:
+      - conditions:
+          - condition: trigger
+            id: rule_1
+        sequence:
+          - service: input_boolean.turn_off
+            target:
+              entity_id: !input scene_group
+          - service: input_boolean.turn_on
+            target:
+              entity_id: !input rule_1_target
+
+      - conditions:
+          - condition: trigger
+            id: rule_2
+        sequence:
+          - service: input_boolean.turn_off
+            target:
+              entity_id: !input scene_group
+          - service: input_boolean.turn_on
+            target:
+              entity_id: !input rule_2_target
